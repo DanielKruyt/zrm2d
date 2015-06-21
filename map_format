@@ -1,0 +1,31 @@
+Map Format:
+	Header:
+		Magic number - 5 bytes - ASCII "ZRM2D"
+		Format version - 3 bytes
+		Number of extension headers - 4 bytes
+		32-bit hash of contents to follow - 4 bytes
+	Extension format:
+		Type - 4 bytes
+		Length (in bytes) - 4 bytes
+		(Length) bytes which are defined by the particular type of ext. header
+
+Extension types (ZRM2D v0.0.0:1):
+	Tileset descriptor: Type = 1 base10
+		filname - null-terminated string
+
+	Pages Section: Type = 2 base10
+		Number of pages - 4 bytes
+		Set of pages:
+			Position x/y - 2 bytes * 2
+			Tiles ( row major):
+				Tile index -- 2 bytes (1 byte tileset, 1byte tile)
+
+	Entities Section: Type = 3 base10
+		Number of entities - 4 bytes
+		Set of entities:
+			Entity type - 2 bytes
+			Length of data - 2 bytes ( excludes these 4 bytes thus far )
+			ENTITY_STATE - x bytes, depending on entity type/state
+	
+
+	

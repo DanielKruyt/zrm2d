@@ -118,12 +118,23 @@ function love.draw()
 end
 ]]
 
-require "game"
+require "resourcecache"
+require "map"
+require "camera"
 
 function love.load(arg)
-	g = game.new()
-	g:load()
-	g.map:load("test")
+	m = map.new()
+	m.pages[0] = {}
+	m.pages[0][0] = {}
+	for i=1,256 do
+		m.pages[0][0][i] = 0
+	end
+	for i = 1,16 do
+		m.pages[0][0][i] = 1
+	end
+	m.tile_attribs['obstacle'] = {}
+	m.tile_attribs.obstacle[1] = true
+	player = {x=0,y=0}
 end
 
 function love.update(dt)
@@ -134,7 +145,7 @@ function love.update(dt)
 	end; if love.keyboard.isDown("s") then
 		diry = diry + 1
 	end; if love.keyboard.isDown("a") then
-		dirx = dirx - 1
+		dirx = dirx -1
 	end; if love.keyboard.isDown("d") then
 		dirx = dirx + 1
 	end
@@ -146,14 +157,24 @@ function love.update(dt)
 	end
 	local dx = dirx*dt*speed
 	local dy = diry*dt*speed
-	local px, py = g.map:box_push(g.camera.x,g.camera.y, 32/48,dx,dy)
-	g.camera:move(px,py)
+	player.x, player.y = m:box_push(player.x,player.y, 16/48,dx,dy)
+	camera:move(player.x,player.y)
 end
 
 function love.draw()
+	for j = 0,15 do
+		for i = 0,15 do
+			if m.pages[0][0][1+i+16*j] == 1 then
+				love.graphics.setColor(255,0,0)
+			else
+				love.graphics.setColor(0,32,0)
+			end
+			local x,y = camera:world_to_camera(i,j)
+			love.graphics.rectangle("fill",x,y,48,48)
+		end
+	end
 	love.graphics.setColor(255,255,255)
-	g:draw()
-	love.graphics.print("x: "..g.camera.x.." y: "..g.camera.y)
+	love.graphics.print("x: "..player.x.." y: "..player.y)
 	love.graphics.setColor(0,255,255)
 	love.graphics.rectangle("fill",480-16,360-16,32,32)
 end

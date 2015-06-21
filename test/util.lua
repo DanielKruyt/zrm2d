@@ -121,19 +121,3 @@ function string.split(src,m)
 	return t
 end
 
-function math.magmax(a,b)
-	if math.abs(a) > math.abs(b) then
-		return a
-	else
-		return b
-	end
-end
-
-function math.magmin(a,b)
-	if math.abs(a) < math.abs(b) then
-		return a
-	else
-		return b
-	end
-end
-
