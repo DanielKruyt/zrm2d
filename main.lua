@@ -1,4 +1,4 @@
-package.path = package.path..";./src/?.lua"
+package.path = package.path..";~/daniel/zrm2d/src/?.lua"
 --[[
 require "statemachine"
 require "mainmenu"
