@@ -2,7 +2,7 @@
 survivor_sprites = {}
 zombie_sprites = {}
 tileset = nil
-
+:D
 players = {}
 surviors  = {}
 zombies = {}
