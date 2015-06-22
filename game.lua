@@ -69,33 +69,30 @@ function game:draw()
 	local js, je = math.floor(self.camera.y-8), math.ceil(self.camera.y+8)
 	local drawlist = {}
 	-- TODO: fix sprite batches
-	local c = 0
 	for i = is, ie do
 		for j = js, je do
 			local tilenum = self.map:get_tile(i,j)
 			local x,y = self.camera:world_to_camera(i,j)
 			if not drawlist[math.floor(tilenum/256)] then drawlist[math.floor(tilenum/256)] = {} end
 			table.insert(drawlist[math.floor(tilenum/256)],{tilenum%256,x,y})
-			c = c + 1
 		end
 	end
-	print(c)
 	for k,v in pairs(drawlist) do
 		self.map.tileset.spritebatch[k]:clear()
 		self.map.tileset.spritebatch[k]:bind()
 		for l,u in pairs(v) do
-			self.map.tilesets[k+1].spritebatch:add(
-				self.map.tilesets[k+1].quads[u[1]+1], u[2], u[3]
+			self.map.tileset.spritebatch[k]:add(
+				self.map.tileset.quad[k][u[1]], u[2], u[3]
 			)
 		end
-		self.map.tilesets[k+1].spritebatch:unbind()
-		love.graphics.draw(self.map.tilesets[k+1].spritebatch)
+		self.map.tileset.spritebatch[k]:unbind()
+		love.graphics.draw(self.map.tileset.spritebatch[k])
 	end
 
 	if firstdraw then firstdraw = false end
 
-	for k,v in pairs(self.map.tilesets) do
-		love.graphics.draw(v.spritebatch)
+	for k,v in pairs(self.map.tileset.spritebatch) do
+		love.graphics.draw(v)
 	end
 	-- sort drawlist by 'height'
 	-- draw everything in sorted order of lowest to heighest height

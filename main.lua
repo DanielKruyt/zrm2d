@@ -124,6 +124,8 @@ function love.load(arg)
 	g = game.new()
 	g:load()
 	g.map:load("test")
+	print(g.map.tileset.attrib['obstacle'][1])
+	print(g.map:get_tile_attrib('obstacle',1))
 end
 
 function love.update(dt)

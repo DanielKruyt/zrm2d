@@ -22,7 +22,8 @@ function map:get_tile(x,y)
 	if not self.page[py] or not self.page[py][px] then
 		return self.default_tile
 	end
-	return self.pages[py][px][ x-16*px + 16*(y-16*py) ]
+	print('get_tile AT: '..x-16*px + 16*(y-16*py))
+	return self.page[py][px][ x%16 + 16*(y%16) ]
 end
 
 
@@ -70,7 +71,7 @@ end
 
 
 function map:test_box(px,py,r)
-	print(self:get_tile(px-r/2,py-r/2))
+	print('TILE AT: ',self:get_tile(px-r/2,py-r/2))
 	if     self:get_tile_attrib("obstacle",self:get_tile(px-r/2,py-r/2))
 		or self:get_tile_attrib("obstacle",self:get_tile(px-r/2,py+r/2))
 		or self:get_tile_attrib("obstacle",self:get_tile(px+r/2,py+r/2))
@@ -159,7 +160,6 @@ function map:add_tileset(filename)
 		tile_attrs[as] = {}
 
 		for j = 1,num_t do
-			print('lk')
 			tile_attrs[as]
 				[string.byte(c:sub(j))] = true
 			c = c:sub(2)
@@ -225,11 +225,10 @@ function map:load_ext(t,l,c)
 			x = x:sub(5)
 			
 			for i = 0, 255 do
-				print(i,string.byte(x:sub(2+2*i)))
-				p[i] = string.byte(x:sub(1+2*i)) + 
-				string.byte(x:sub(2+2*i))*2^8
+				p[i] = string.byte(x:sub(1+2*i))*256 + 
+				string.byte(x:sub(2+2*i))
 			end
-
+			if not self.page[py] then self.page[py] = {} end
 			self.page[py][px] = p
 		end
 
@@ -254,6 +253,10 @@ function map:load(filename,check_hash)
 	end
 
 	local f = io.open("maps/"..filename..".map")
+	if not f then
+		print("Attempted to load non-existent map: "..filename)
+		return false
+	end
 	local c = f:read("*all")
 	f:close()
 
@@ -278,6 +281,8 @@ function map:load(filename,check_hash)
 			return false
 		end
 	end
+	local hash = string.byte(c:sub(1)) + string.byte(c:sub(2))*2^8 +
+		string.byte(c:sub(3))*2^16 + string.byte(c:sub(4))*2^24
 	c = c:sub(5)
 
 	local n = 0
@@ -289,6 +294,7 @@ function map:load(filename,check_hash)
 		c = c:sub(9)
 		self:load_ext(ext_type,length,c)
 		c = c:sub(length+1)
+		n = n + 1
 	end
 end
  

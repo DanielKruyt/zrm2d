@@ -1,1 +1,1 @@
-open -n -a love "."
+./love.app/Contents/MacOS/love "."
