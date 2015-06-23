@@ -126,6 +126,7 @@ function love.load(arg)
 	g.map:load("test")
 	print(g.map.tileset.attrib['obstacle'][1])
 	print(g.map:get_tile_attrib('obstacle',1))
+	g.camera:move(-1,-1)
 end
 
 function love.update(dt)

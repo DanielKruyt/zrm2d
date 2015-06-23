@@ -22,7 +22,6 @@ function map:get_tile(x,y)
 	if not self.page[py] or not self.page[py][px] then
 		return self.default_tile
 	end
-	print('get_tile AT: '..x-16*px + 16*(y-16*py))
 	return self.page[py][px][ x%16 + 16*(y%16) ]
 end
 
@@ -71,11 +70,10 @@ end
 
 
 function map:test_box(px,py,r)
-	print('TILE AT: ',self:get_tile(px-r/2,py-r/2))
-	if     self:get_tile_attrib("obstacle",self:get_tile(px-r/2,py-r/2))
-		or self:get_tile_attrib("obstacle",self:get_tile(px-r/2,py+r/2))
-		or self:get_tile_attrib("obstacle",self:get_tile(px+r/2,py+r/2))
-		or self:get_tile_attrib("obstacle",self:get_tile(px+r/2,py-r/2))
+	if         self:get_tile_attrib("obstacle",self:get_tile(math.floor(px-r/2),math.floor(py-r/2)))
+		or self:get_tile_attrib("obstacle",self:get_tile(math.floor(px-r/2),math.floor(py+r/2)))
+		or self:get_tile_attrib("obstacle",self:get_tile(math.floor(px+r/2),math.floor(py+r/2)))
+		or self:get_tile_attrib("obstacle",self:get_tile(math.floor(px+r/2),math.floor(py-r/2)))
 	then
 		return true
 	else
@@ -217,11 +215,13 @@ function map:load_ext(t,l,c)
 
 		local num_pages = string.byte(x:sub(1)) + string.byte(x:sub(2))*2^8 +
 			string.byte(x:sub(3))*2^16 + string.byte(x:sub(4))*2^24
+		print('num_pages',num_pages)
 		x = x:sub(5)
 		for i = 0, num_pages-1 do
 			local p = {}
 			local px = string.byte(x:sub(1)) + string.byte(x:sub(2))*2^8
 			local py = string.byte(x:sub(3)) + string.byte(x:sub(4))*2^8
+			print('page',i,'x|y',px.."|"..py)
 			x = x:sub(5)
 			
 			for i = 0, 255 do
@@ -291,6 +291,7 @@ function map:load(filename,check_hash)
 			string.byte(c:sub(3))*2^16 + string.byte(c:sub(4))*2^24
 		local length = string.byte(c:sub(5)) + string.byte(c:sub(6))*2^8 +
 			string.byte(c:sub(7))*2^16 + string.byte(c:sub(8))*2^24
+		print('length: ',length)
 		c = c:sub(9)
 		self:load_ext(ext_type,length,c)
 		c = c:sub(length+1)
