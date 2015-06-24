@@ -303,23 +303,20 @@ end
 
 
 function map:save(filename)
-	-- TODO: finish map:save
-	-- serialise tileset data
+	-- TODO: map:save
+	-- save tileset files
 	local ts = {}
 	local num_ts = #(self.tileset.quad)+1
 	if not (num_ts == 1 and not self.tileset.quad[0]) then
 		for attrib, v in pairs(self.tileset.attrib) do
-			for i,_ in pairs(v) do
+			for _,i in pairs(v) do
 				if not ts[math.floor(i/256)] then ts[math.floor(i/256)] = {} end
 				if not ts[math.floor(i/256)][attrib] then ts[math.floor(i/256)][attrib] end 
-				table.insert(ts[math.floor(i/256)][attrib], i%256)
+				ts[math.floor(i/256)][attrib] = i%256
 			end
 		end
 	end
-	-- serialise tileset reference
-	local 
-	-- serialise pages
+
 	-- save map file
-	
 end
 
