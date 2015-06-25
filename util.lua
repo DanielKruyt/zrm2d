@@ -137,3 +137,28 @@ function math.magmin(a,b)
 	end
 end
 
+--------------------------------------------------------------------------------
+-- Stringy library TODO: do this stringy library at some point
+--------------------------------------------------------------------------------
+
+stringy = {
+	load_nulstr = function (data)
+	end,
+	load_str = function (data,len)
+	end,
+	load_defstr = function (data,num_bytes)
+	end,
+	load_int = function (data,num_bytes)
+	end,
+	load_intarr = function (data,num_bytes,num_elements)
+	end,
+	load_defintarr = function (data,num_bytes)
+	end,
+	load_template = function (data,template)
+	end
+}
+
+
+
+
+

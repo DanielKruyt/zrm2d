@@ -3,7 +3,7 @@ require "util"
 
 map = {}
 map.entities = {} -- TODO: map entities
-map.tileset = {quad={},attrib={},spritebatch={}}
+map.tileset = {quad={},attrib={},spritebatch={},detail={}}
 map.page = {}
 map.default_tile = 0
 
@@ -141,10 +141,16 @@ function map:add_tileset(filename)
 		return false
 	end
 	c = c:sub(6)
+	c = c:sub(4) -- trimming version for now TODO: fix/continue this
+	if not self.tileset.detail[index] then self.tileset.detail[index] = {} end
+	
 		-- read width, height and number of attributes
 	local w, h = string.byte(c:sub(1)), string.byte(c:sub(2))
-	local num_attrib = string.byte(c:sub(3))
-	c = c:sub(4)
+	self.tileset.detail[index].name = filename
+	self.tileset.detail[index].width = w
+	self.tileset.detail[index].height = h
+	local num_attrib = string.byte(c:sub(3)) + 256*string.byte(c:sub(4))
+	c = c:sub(5)
 		-- read attributes
 	local tile_attrs = {} 
 	for i = 0, num_attrib-1 do
@@ -172,6 +178,8 @@ function map:add_tileset(filename)
 	if self.tileset.quad[0] then
 		index = #self.tileset.quad + 1	
 	end
+
+
 	
 	for k,v in pairs(tile_attrs) do
 		if not self.tileset.attrib[k] then self.tileset.attrib[k] = {} end
@@ -301,23 +309,39 @@ function map:load(filename,check_hash)
 end
  
 
+function map:save_tileset(name, attribs, num_attrib,  width, height)
+	local f = io.open("tiles/"..name..".tile","wb")
+	f:write("ZRMTS\x00\x00\x00")
+	f:write(string.char(width)..string.char(height))
+	f:write(string.char(num_attrib%256)..string.char(math.floor(num_attrib/256)))
+	for k,v in pairs(attribs) do
+		local num_t = 0
+		for _ in pairs(v) do num_t = num_t+1 end
+		local serial = k.."\x00"
+		serial = serial .. string.char(num_t)
+	end
+end
 
-function map:save(filename)
-	-- TODO: finish map:save
-	-- serialise tileset data
+
+function map:save(filename) -- TODO: finish map:save
 	local ts = {}
 	local num_ts = #(self.tileset.quad)+1
 	if not (num_ts == 1 and not self.tileset.quad[0]) then
-		for attrib, v in pairs(self.tileset.attrib) do
-			for i,_ in pairs(v) do
-				if not ts[math.floor(i/256)] then ts[math.floor(i/256)] = {} end
-				if not ts[math.floor(i/256)][attrib] then ts[math.floor(i/256)][attrib] end 
-				table.insert(ts[math.floor(i/256)][attrib], i%256)
+		for attrib, tiles in pairs(self.tileset.attrib) do
+			for i,_ in pairs(tiles) do
+				if not ts[math.floor(i/256)+1] then ts[math.floor(i/256)+1] = {} end
+				if not ts[math.floor(i/256)+1][attrib] then ts[math.floor(i/256)+1][attrib] = {} end 
+				table.insert(ts[math.floor(i/256)+1][attrib], i%256)
 			end
 		end
+		
+		for i, v in ipairs(ts) do
+			self:save_tileset(i-1)
+		end
 	end
-	-- serialise tileset reference
-	local 
+	
+	
+	-- serialise tileset references
 	-- serialise pages
 	-- save map file
 	

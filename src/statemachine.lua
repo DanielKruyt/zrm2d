@@ -1,4 +1,0 @@
-state = 0
-MAIN_MENU = 0
-IN_GAME = 1
-MAP_EDITOR = 2
