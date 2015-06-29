@@ -126,6 +126,7 @@ end
 
 
 function map:add_tileset(filename)
+	print("function map:add_tileset(filename)")
 		-- read tileset descriptor file
 	local f = io.open("tiles/"..filename..".tile","rb")
 	if not f then
@@ -142,6 +143,10 @@ function map:add_tileset(filename)
 	end
 	c = c:sub(6)
 	c = c:sub(4) -- trimming version for now TODO: fix/continue this
+	local index = 0
+	if self.tileset.quad[0] then
+		index = #self.tileset.quad + 1	
+	end
 	if not self.tileset.detail[index] then self.tileset.detail[index] = {} end
 	
 		-- read width, height and number of attributes
@@ -149,16 +154,19 @@ function map:add_tileset(filename)
 	self.tileset.detail[index].name = filename
 	self.tileset.detail[index].width = w
 	self.tileset.detail[index].height = h
-	local num_attrib = string.byte(c:sub(3)) + 256*string.byte(c:sub(4))
-	c = c:sub(5)
+	local num_attrib = string.byte(c:sub(3))-- + 256*string.byte(c:sub(4))
+	c = c:sub(4)
 		-- read attributes
+	print('a1')
 	local tile_attrs = {} 
+	print('num_attrib', num_attrib)
 	for i = 0, num_attrib-1 do
 		local as, j = "", 1
 		while c:sub(j,j) ~= "\x00" do
 			as = as..c:sub(j,j)
 			j = j + 1
 		end
+		print(as)
 		local num_t = string.byte(c:sub(j+1))
 		c = c:sub(j+2)
 		tile_attrs[as] = {}
@@ -169,15 +177,12 @@ function map:add_tileset(filename)
 			c = c:sub(2)
 		end
 	end
+	print('a2')
 		-- load image and create spritebatch for this tileset
 	-- TODO: error message if image file missing when adding tileset; map:add_tileset
 	local img = love.graphics.newImage("tiles/"..filename..".png")
 	local sb = love.graphics.newSpriteBatch(img, 1000, "stream")
 
-	local index = 0
-	if self.tileset.quad[0] then
-		index = #self.tileset.quad + 1	
-	end
 
 
 	
@@ -187,7 +192,7 @@ function map:add_tileset(filename)
 			self.tileset.attrib[k][index*256 + l] = true
 		end
 	end
-
+	print('a3')
 	self.tileset.quad[index] = {}
 	self.tileset.spritebatch[index] = sb
 	local qt = self.tileset.quad[index]
@@ -201,6 +206,8 @@ function map:add_tileset(filename)
 			)
 		end
 	end
+
+	print(" END function map:add_tileset(filename)")
 	return true
 end
 
@@ -309,21 +316,8 @@ function map:load(filename,check_hash)
 end
  
 
-function map:save_tileset(name, attribs, num_attrib,  width, height)
-	local f = io.open("tiles/"..name..".tile","wb")
-	f:write("ZRMTS\x00\x00\x00")
-	f:write(string.char(width)..string.char(height))
-	f:write(string.char(num_attrib%256)..string.char(math.floor(num_attrib/256)))
-	for k,v in pairs(attribs) do
-		local num_t = 0
-		for _ in pairs(v) do num_t = num_t+1 end
-		local serial = k.."\x00"
-		serial = serial .. string.char(num_t)
-	end
-end
-
-
-function map:save(filename) -- TODO: finish map:save
+function map:save_tilesets()
+	-- collect tileset infos
 	local ts = {}
 	local num_ts = #(self.tileset.quad)+1
 	if not (num_ts == 1 and not self.tileset.quad[0]) then
@@ -336,10 +330,13 @@ function map:save(filename) -- TODO: finish map:save
 		end
 		
 		for i, v in ipairs(ts) do
-			self:save_tileset(i-1)
+
 		end
 	end
-	
+end
+
+
+function map:save(filename) -- TODO: finish map:save
 	
 	-- serialise tileset references
 	-- serialise pages

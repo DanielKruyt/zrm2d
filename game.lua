@@ -48,6 +48,7 @@ function game.load(self,filename)
 end
 
 
+
 function game.update(self,dt)
 	self:pretick(dt)
 
@@ -60,6 +61,8 @@ function game.update(self,dt)
 	self:process_events()
 	self:posttick(dt)
 end
+
+
 firstdraw = true
 function game:draw()
 	-- for each drawable

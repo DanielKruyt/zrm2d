@@ -1,161 +1,127 @@
-package.path = package.path..";~/daniel/zrm2d/src/?.lua"
---[[
-require "statemachine"
-require "mainmenu"
 
-
-
-
-function love.load()
-	mainmenu:load()
-end
-
-function love.update()
-	if state == MAIN_MENU then
-		--update_mouse()
-		mainmenu:update(dt)
-	elseif state == IN_GAME then
-		-- TODO: game update()
-	elseif state == MAP_EDITOR then
-		mapeditor:update(dt)
-	else
-		return
-	end
-end
-
-function love.draw()
-	if state == MAIN_MENU then
-		mainmenu:draw()
-	elseif state == IN_GAME then
-		-- TODO: game draw()
-	elseif state == MAP_EDITOR then
-		mapeditor:draw()
-	end
-end
-]]
---[[
 require "gui"
+require "camera"
 
-function love.load()
+function love.load(arg)
+	c = camera:new()
 	w = gui.window.new()
-	w.bgcolor = {255,0,0}
-	w.width = 800
-	w.height = 600
-	w.position = {100,100}
-	
-	c = gui.container.new()
-	c.bgcolor = {255,255,0}
-	c.width = 800
-	c.height = 600-20
-
-	d = util.deepcopy(c)
-	e = util.deepcopy(d)
-	
-		but = gui.button.new()
-		but.contents = "hello"
-		but.width = 100
-		but.height = 20
-		but.bgcolor = {68,68,68}
-		but.position = { 100,100}
-
-		cb = gui.checkbox.new()
-		cb.width = 20; cb.height = 20
-		cb.bgcolor = {10,80,129}; cb.fgcolor = {0,0,0}
-		cb.padding = 5
-		cb.position = {300,30}
-	
-	table.insert(c.children,but)
-	table.insert(c.children,cb)
-		
-		tb = gui.textbox.new()
-		tb.bgcolor = { 53, 12, 200}; tb.fontcolor = { 0, 0, 0}
-		tb.viewport = { 1,  #tb.text};
-		tb.width = 100; tb.height = 20
-		tb.cursor = 1; 
-		tb:insert("your mom is a very nice lady")
-		tb.on_click = function (self,x,y)
-			self:move_cursor(self.cursor+1)
-		end
-	table.insert(d.children,tb)
-
-
-
-	t = gui.tabstack.new()
-	t.width = 800
-	t.height = 600
-	t.tabwidth = 20
-	t.tabheight = 20
-	t.tabcolor = {0,200,0}
-	t.bgcolor = {98,98,98}
-	t.tabs = {    { "oh", c },    {"oh",d}, {"oh",e} }
-	t.selection = 1
-	
-	table.insert(w.children,t)
-
-	repeatclick = false
+		w.width = 240
+		w.height = 720
+		w.bgcolor = {69,69,69}
+		--buttons
+		local b_new = gui.button.new()
+			b_new.bgcolor = {33,33,33}
+			b_new.position = {9,9}
+			b_new.width = 32
+			b_new.height = 32
+			b_new.contents = "new"
+		table.insert(w.children,b_new)
+		local b_load = gui.button.new()
+			b_load.bgcolor = {33,33,33}
+			b_load.position = {47,9}
+			b_load.width = 32
+			b_load.height = 32
+			b_load.contents = "load"
+		table.insert(w.children,b_load)
+		local b_save = gui.button.new()
+			b_save.bgcolor = {33,33,33}
+			b_save.position = {85,9}
+			b_save.width = 32
+			b_save.height = 32
+			b_save.contents = "save"
+		table.insert(w.children,b_save)
+		local b_settings = gui.button.new()
+			b_settings.bgcolor = {33,33,33}
+			b_settings.position = {123,9}
+			b_settings.width = 32
+			b_settings.height = 32
+			b_settings.contents = "opts"
+		table.insert(w.children,b_settings)
+		local b_test = gui.button.new()
+			b_test.bgcolor = {33,33,33}
+			b_test.position = {161,9}
+			b_test.width = 32
+			b_test.height = 32
+			b_test.contents = "test"
+		table.insert(w.children,b_test)
+		local b_exit = gui.button.new()
+			b_exit.bgcolor = {33,33,33}
+			b_exit.position = {199,9}
+			b_exit.width = 32
+			b_exit.height = 32
+			b_exit.contents = "exit"
+		table.insert(w.children,b_exit)
+		-- tabstack
+		local t = gui.tabstack.new()
+			t.bgcolor = {69,169,69}
+			t.position = {0,18+32}
+			t.width = 240
+			t.height = 720-(18+32)
+			t.tabwidth = 64
+			t.tabheight = 32
+			t.fontcolor = {0,0,0}
+			t.tabcolor = {79,179,79}
+			t.selection = 1
+				local tc1 = gui.container.new()
+				tc1.bgcolor = {169,69,69}
+				tc1.width = 240
+				tc1.height = 720-(18+32+32)
+				table.insert(t.tabs,{"Brushes",tc1})
+				local tc2 = gui.container.new()
+				tc2.bgcolor = {169,69,69}
+				tc2.width = 240
+				tc2.height = 720-(18+32+32)
+				table.insert(t.tabs,{"Entities",tc2})
+		table.insert(w.children,t)
 end
 
+
+local mdown = false
+local sdown = false
+local sdownx, sdowny = 0,0
+local cx,cy = 0, 0
+local mbx, mby = 0,0
 function love.update(dt)
-	local mx, my = love.mouse.getPosition()
+	local mx,my = love.mouse.getPosition()
 	if love.mouse.isDown("l") then
-		if not repeatclick then
-			if util.box_point_intersect(mx,my, w.position[1], w.position[2], w.width, w.height) then
-				w:on_click(mx-w.position[1], my-w.position[2])
+		if not down then
+			if mx < 240 then
+				w:on_click(mx,my)
+				down = true
 			end
 		end
-		repeatclick = true
 	else
-		repeatclick = false
+		down = false
 	end
-	if love.mouse.isDown("wu") then
-
-	elseif love.mouse.isDown("wd") then
+	if love.keyboard.isDown(" ") then
+		if not sdown then
+			sdownx, sdowny = mx, my
+			sdown = true
+		end
+		c:move(cx-(mx-sdownx)/48,cy-(my-sdowny)/48)
+	else
+		if sdown then
+			cx, cy = c.x, c.y
+		end
+		sdown = false
 	end
 end
 
 function love.draw()
 	w:draw()
-end
-]]
+	-- draw map grid
+	love.graphics.setLineWidth(1)
+	love.graphics.setLineStyle('rough')
 
-require "game"
-
-function love.load(arg)
-	g = game.new()
-	g:load()
-	g.map:load("test")
-	g.camera:move(-1,-1)
-end
-
-function love.update(dt)
-	local speed = 4
-	local dirx,diry = 0, 0
-	if love.keyboard.isDown("w") then
-		diry = diry - 1
-	end; if love.keyboard.isDown("s") then
-		diry = diry + 1
-	end; if love.keyboard.isDown("a") then
-		dirx = dirx - 1
-	end; if love.keyboard.isDown("d") then
-		dirx = dirx + 1
+	local sx, sy = math.floor( c.x-9 ), math.floor(c.y-8)
+	local ex, ey = math.ceil(c.x+8), math.ceil(c.y+8)
+	for i = sx, ex do
+		local x, _ = c:world_to_camera(i,0)
+		love.graphics.line(x+240,0,x+240,720)
 	end
-
-	local mag = math.sqrt(dirx^2 + diry^2)
-	if mag > 0 then
-		dirx = dirx/mag
-		diry = diry/mag
+	for j = sy, ey do
+		local _, y = c:world_to_camera(0,j)
+		love.graphics.line(240,y,960,y)
 	end
-	local dx = dirx*dt*speed
-	local dy = diry*dt*speed
-	local px, py = g.map:box_push(g.camera.x,g.camera.y, 32/48,dx,dy)
-	g.camera:move(px,py)
-end
-
-function love.draw()
-	love.graphics.setColor(255,255,255)
-	g:draw()
-	love.graphics.print("x: "..g.camera.x.." y: "..g.camera.y)
-	love.graphics.setColor(0,255,255)
-	love.graphics.rectangle("fill",480-16,360-16,32,32)
 end
 

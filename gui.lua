@@ -130,7 +130,9 @@ local tabstack = {}
 
 	function tabstack.draw(self)
 		love.graphics.push("all")
-		
+		love.graphics.translate(self.position[1],self.position[2])
+		love.graphics.setColor(self.bgcolor)
+		love.graphics.rectangle("fill",0,0,self.width,self.height)
 		--draw tabstack itself
 		for k,v in pairs(self.tabs) do
 			if k == self.selection then
@@ -139,6 +141,11 @@ local tabstack = {}
 				love.graphics.setColor(self.tabcolor)
 			end
 			love.graphics.rectangle("fill", self.tabwidth*(k-1), 0, self.tabwidth, self.tabheight)
+
+			love.graphics.setColor(self.fontcolor)
+			local tw = love.graphics.getFont():getWidth(self.tabs[k][1])
+			local lh = love.graphics.getFont():getHeight()
+			love.graphics.printf(self.tabs[k][1], self.tabwidth*(k-1)-tw/2+self.tabwidth/2, self.tabheight/2-lh/2, tw, "center")
 		end
 
 		--draw container
