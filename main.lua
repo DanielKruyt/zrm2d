@@ -72,6 +72,11 @@ function love.load(arg)
 				tc2.width = 240
 				tc2.height = 720-(18+32+32)
 				table.insert(t.tabs,{"Entities",tc2})
+				local tc3 = gui.container.new()
+				tc3.bgcolor = {169,69,69}
+				tc3.width = 240
+				tc3.height = 720-(18+32+32)
+				table.insert(t.tabs,{"Tools",tc3})
 		table.insert(w.children,t)
 end
 
@@ -83,6 +88,8 @@ local cx,cy = 0, 0
 local mbx, mby = 0,0
 function love.update(dt)
 	local mx,my = love.mouse.getPosition()
+	mbx = math.floor(c.x + (mx-600)/48)
+	mby = math.floor(c.y + (my-360)/48)
 	if love.mouse.isDown("l") then
 		if not down then
 			if mx < 240 then
@@ -108,20 +115,27 @@ function love.update(dt)
 end
 
 function love.draw()
-	w:draw()
+	
 	-- draw map grid
 	love.graphics.setLineWidth(1)
 	love.graphics.setLineStyle('rough')
 
-	local sx, sy = math.floor( c.x-9 ), math.floor(c.y-8)
+	local sx, sy = math.floor( c.x-8 ), math.floor(c.y-8)
 	local ex, ey = math.ceil(c.x+8), math.ceil(c.y+8)
+	love.graphics.setColor(150,200,0)
 	for i = sx, ex do
 		local x, _ = c:world_to_camera(i,0)
-		love.graphics.line(x+240,0,x+240,720)
+		love.graphics.line(x+120,0,x+120,720)
 	end
 	for j = sy, ey do
 		local _, y = c:world_to_camera(0,j)
 		love.graphics.line(240,y,960,y)
 	end
+	love.graphics.setColor(150,200,0,75 + 25*math.sin(love.timer.getTime()*3))
+	local x,y = c:world_to_camera(mbx,mby)
+	love.graphics.rectangle('fill',x+120,y,48,48)
+	w:draw()
+	love.graphics.setColor(255,255,255)
+	love.graphics.print("X: "..mbx.."  Y: "..mby, 245, 5)
 end
 
