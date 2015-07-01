@@ -317,20 +317,38 @@ end
  
 
 function map:save_tilesets()
-	-- collect tileset infos
+	local version = "\x00\x00\x00"
 	local ts = {}
 	local num_ts = #(self.tileset.quad)+1
 	if not (num_ts == 1 and not self.tileset.quad[0]) then
 		for attrib, tiles in pairs(self.tileset.attrib) do
 			for i,_ in pairs(tiles) do
-				if not ts[math.floor(i/256)+1] then ts[math.floor(i/256)+1] = {} end
-				if not ts[math.floor(i/256)+1][attrib] then ts[math.floor(i/256)+1][attrib] = {} end 
-				table.insert(ts[math.floor(i/256)+1][attrib], i%256)
+				if not ts[math.floor(i/256)] then ts[math.floor(i/256)] = {} end
+				if not ts[math.floor(i/256)][attrib] then ts[math.floor(i/256)][attrib] = {} end 
+				table.insert(ts[math.floor(i/256)][attrib], i%256)
 			end
 		end
 		
-		for i, v in ipairs(ts) do
-
+		for i=0,#i do
+			local f = io.open("tiles/"..self.tileset.detail[i]..".tile","wb")
+			f:write("ZRMTS"..version)
+			f:write(string.char(self.tileset.detail[i].width))
+			f:write(string.char(self.tileset.detail[i].height))
+			local num_attribs = 0
+			for _,_ in pairs(ts[i]) do num_attribs = num_attribs + 1 end
+			f:write(string.char(num_attribs))
+			for attrib, tiles in pairs(ts[i]) do
+				f:write(attrib.."\x00")
+				if not (#tiles==0 and not tiles[0]) then
+					f:write(string.char(#tiles+1))
+					for j=0,#tiles do
+						f:write(string.char(tiles[j]))
+					end
+				else
+					f:write("\x00")
+				end
+			end
+			f:close()
 		end
 	end
 end
