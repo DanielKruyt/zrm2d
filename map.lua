@@ -157,9 +157,7 @@ function map:add_tileset(filename)
 	local num_attrib = string.byte(c:sub(3))-- + 256*string.byte(c:sub(4))
 	c = c:sub(4)
 		-- read attributes
-	print('a1')
 	local tile_attrs = {} 
-	print('num_attrib', num_attrib)
 	for i = 0, num_attrib-1 do
 		local as, j = "", 1
 		while c:sub(j,j) ~= "\x00" do
@@ -177,7 +175,6 @@ function map:add_tileset(filename)
 			c = c:sub(2)
 		end
 	end
-	print('a2')
 		-- load image and create spritebatch for this tileset
 	-- TODO: error message if image file missing when adding tileset; map:add_tileset
 	local img = love.graphics.newImage("tiles/"..filename..".png")
@@ -192,7 +189,6 @@ function map:add_tileset(filename)
 			self.tileset.attrib[k][index*256 + l] = true
 		end
 	end
-	print('a3')
 	self.tileset.quad[index] = {}
 	self.tileset.spritebatch[index] = sb
 	local qt = self.tileset.quad[index]
@@ -207,8 +203,11 @@ function map:add_tileset(filename)
 		end
 	end
 
-	print(" END function map:add_tileset(filename)")
 	return true
+end
+
+function map:new_tileset(name)
+	
 end
 
 function map:load_ext(t,l,c)
@@ -234,8 +233,8 @@ function map:load_ext(t,l,c)
 		x = x:sub(5)
 		for i = 0, num_pages-1 do
 			local p = {}
-			local px = string.byte(x:sub(1)) + string.byte(x:sub(2))*2^8
-			local py = string.byte(x:sub(3)) + string.byte(x:sub(4))*2^8
+			local px = (string.byte(x:sub(1)) + string.byte(x:sub(2))*2^8)-2^15
+			local py = (string.byte(x:sub(3)) + string.byte(x:sub(4))*2^8)-2^15
 			print('page',i,'x|y',px,py)
 			x = x:sub(5)
 
@@ -354,11 +353,54 @@ function map:save_tilesets()
 end
 
 
-function map:save(filename) -- TODO: finish map:save
-	
+function map:save(filename) -- TODO: finish map:save (entities?)
+	local version = "\x00\x00\x00"
+	self:save_tilesets()
 	-- serialise tileset references
+	local ts_ext = ""
+	for i=0,#self.tileset.details do
+		local lenstr = self.tileset.detail[i].name:len()+1
+		lenstr = string.char(lenstr%256)
+			.. string.char(math.floor(lenstr/256)%256)
+			.. string.char(math.floor(lenstr/256^2)%256)
+			.. string.char(math.floor(lenstr/256^3)%256)
+		ts_ext = tx_ext.."\x01\x00\x00\x00"..lenstr..self.detail[i].name.."\x00"
+	end
 	-- serialise pages
+	local num_pages = 0
+	local pg_ext = "\x02\x00\x00\x00"
+	local pg_dat = ""
+	for j,_ in pairs(self.page) do
+		for i,_ in pairs(self.page[j]) do
+			num_pages = num_pages + 1
+			local px, py = i + 2^15, j + 2^15
+			local pxs = string.char(px%256) .. string.char(math.floor(px/256))
+			local pys = string.char(py%256) .. string.char(math.floor(py/256))
+			pg_dat=pg_dat..pxs..pxy
+			for k=0,255 do
+				pg_dat=pg_dat .. string.char(math.floor(self.page[j][i][k]/256))
+					.. string.char(self.page[j][i][k]%256)
+			end
+		end
+	end
+	local pg_ext_size = num_pages*516
+	pg_ext_size = string.char(pg_ext_size%256)
+		.. string.char(math.floor(pg_ext_size/256)%256)
+		.. string.char(math.floor(pg_ext_size/256^2)%256)
+		.. string.char(math.floor(pg_ext_size/256^3)%256)
+	pg_ext=pg_ext..pg_ext_size..pg_dat
 	-- save map file
-	
+	local f = io.open("map/"..filename..".map","wb")
+	f:write("ZRM2D"..version)
+	local num_ext = 1 + #self.tileset.detail+1
+	num_ext = string.char(num_ext%256)
+		.. string.char(math.floor(num_ext/256)%256)
+		.. string.char(math.floor(num_ext/256^2)%256)
+		.. string.char(math.floor(num_ext/256^3)%256)
+	f:write(num_ext) -- num extension blocks
+	f:write("\xff\xff\xff\xff") -- TODO: map:save -- hash
+	f:write(ts_ext)
+	f:write(pg_ext)
+	f:close()
 end
 
