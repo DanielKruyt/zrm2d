@@ -130,8 +130,35 @@ function map:add_tileset(filename)
 		-- read tileset descriptor file
 	local f = io.open("tiles/"..filename..".tile","rb")
 	if not f then
-		print("Attempted to add tileset which does not exist: "..filename)
-		return false
+		f = io.open("tiles/"..filename..".png","rb")
+		if not f then
+			print("Attempted to add tileset which does not exist: "..filename)
+			return false
+		else
+			f:close()
+			local index = #self.tileset.detail
+			if index == 0 and self.tileset.detail[0] then
+				index = 1
+			end
+			
+			local img = love.graphics.newImage("tiles/"..filename..".png")
+			local sb = love.graphics.newSpriteBatch(img, 1000, "stream")
+			
+			self.tileset.quad[index] = {}
+			self.tileset.spritebatch[index] = sb
+			local qt = self.tileset.quad[index]
+
+			local width, height = img:getWidth()/48, img:getHeight()/48
+			for y = 0, height-1 do
+				for x = 0, width-1 do
+					qt[x + width*y] = love.graphics.newQuad(
+						48*x, 48*y, 48,48,
+						img:getWidth(), img:getHeight()
+					)
+				end
+			end
+			return true
+		end
 	end
 
 	local c = f:read("*all")
@@ -206,9 +233,7 @@ function map:add_tileset(filename)
 	return true
 end
 
-function map:new_tileset(name)
-	
-end
+
 
 function map:load_ext(t,l,c)
 	local x = util.deepcopy(c)
