@@ -86,7 +86,12 @@ local sdown = false
 local sdownx, sdowny = 0,0
 local cx,cy = 0, 0
 local mbx, mby = 0,0
-local tile_editor = false; local te_child = -1
+local tile_editor = false
+local te_child = gui.window.new()
+		te_child.width = 720
+		te_child.height = 720
+		te_child.position = {240,0}
+		te_child.bgcolor = {244,244,244}
 function love.update(dt)
 	local mx,my = love.mouse.getPosition()
 	mbx = math.floor(c.x + (mx-600)/48)
@@ -145,6 +150,7 @@ function love.draw()
 	love.graphics.print("X: "..mbx.."  Y: "..mby, 245, 5)
 	
 	if tile_editor then
+		te_child:draw()
 	end
 end
 
