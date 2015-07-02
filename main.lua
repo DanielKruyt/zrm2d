@@ -86,6 +86,7 @@ local sdown = false
 local sdownx, sdowny = 0,0
 local cx,cy = 0, 0
 local mbx, mby = 0,0
+local tile_editor = false; local te_child = -1
 function love.update(dt)
 	local mx,my = love.mouse.getPosition()
 	mbx = math.floor(c.x + (mx-600)/48)
@@ -112,6 +113,11 @@ function love.update(dt)
 		end
 		sdown = false
 	end
+	if love.keyboard.isDown("lshift") then
+		tile_editor = true
+	else
+		tile_editor = false
+	end
 end
 
 function love.draw()
@@ -137,5 +143,8 @@ function love.draw()
 	w:draw()
 	love.graphics.setColor(255,255,255)
 	love.graphics.print("X: "..mbx.."  Y: "..mby, 245, 5)
+	
+	if tile_editor then
+	end
 end
 

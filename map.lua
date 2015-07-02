@@ -157,6 +157,7 @@ function map:add_tileset(filename)
 					)
 				end
 			end
+			
 			return true
 		end
 	end
@@ -207,9 +208,6 @@ function map:add_tileset(filename)
 	local img = love.graphics.newImage("tiles/"..filename..".png")
 	local sb = love.graphics.newSpriteBatch(img, 1000, "stream")
 
-
-
-	
 	for k,v in pairs(tile_attrs) do
 		if not self.tileset.attrib[k] then self.tileset.attrib[k] = {} end
 		for l,u in pairs(v) do
