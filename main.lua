@@ -66,7 +66,7 @@ function love.load(arg)
 				tc1.bgcolor = {169,69,69}
 				tc1.width = 240
 				tc1.height = 720-(18+32+32)
-				table.insert(t.tabs,{"Brushes",tc1})
+				table.insert(t.tabs,{"Tiles",tc1})
 				local tc2 = gui.container.new()
 				tc2.bgcolor = {169,69,69}
 				tc2.width = 240
