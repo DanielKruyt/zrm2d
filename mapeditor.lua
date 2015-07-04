@@ -1,13 +1,16 @@
 require "map"
 require "camera"
 require "gui"
+require "textinput"
 
 mapeditor = {
 	map     = map.new(),
 	toolbar = gui.window.new(),
 	palette_menu = gui.window.new(),
 	camera  = camera.new(),
+	add_tileset_menu = gui.window.new(),
 	brushes = {},
+	main_window = nil, -- where palette menu, add tileset menu, etc will appear
 	
 	palette_menu_open = 0, -- 0 = closed, 1 = open by shift, 2 = open by menu
 	
@@ -69,6 +72,7 @@ function mapeditor.new()
 			b_exit.width = 32
 			b_exit.height = 32
 			b_exit.contents = "exit"
+			b_exit.on_click = function() love.event.quit() end
 		table.insert(ret.toolbar.children,b_exit)
 		-- tabstack
 		local t = gui.tabstack.new()
@@ -85,6 +89,24 @@ function mapeditor.new()
 				tc1.bgcolor = {169,69,69}
 				tc1.width = 240
 				tc1.height = 720-(18+32+32)
+					local b_add_tileset = gui.button.new()
+					b_add_tileset.bgcolor = {69,69,69}
+					b_add_tileset.width = 240-16
+					b_add_tileset.height = 32
+					b_add_tileset.position = {8,8}
+					b_add_tileset.contents = "Add tileset"
+					b_add_tileset.on_click = function()
+						--spawn main window with textbox input for now
+						ret.main_window = ret.add_tileset_menu
+					end
+					local b_open_palette_menu = gui.button.new()
+					b_open_palette_menu.bgcolor = {69,69,69}
+					b_open_palette_menu.width = 240-16
+					b_open_palette_menu.height = 32
+					b_open_palette_menu.position = {8,16+32}
+					b_open_palette_menu.contents = "Palette Menu"
+					table.insert(tc1.children, b_add_tileset)
+					table.insert(tc1.children, b_open_palette_menu)
 				table.insert(t.tabs,{"Tiles",tc1})
 				local tc2 = gui.container.new()
 				tc2.bgcolor = {169,69,69}
@@ -107,17 +129,34 @@ function mapeditor.new()
 		ret.palette_menu.height = 720
 		-- tabstack
 			local t = gui.tabstack.new()
-			t.position = 3
+			t.position = {0,0} t.width = 720
+			t.height = 720
+			t.bgcolor = {25,0,55}
 		table.insert(ret.palette_menu.children, t)
 	end
-	return ret
+
+	do -- add tileset menu
+		ret.add_tileset_menu.bgcolor = {244,244,244}
+		ret.add_tileset_menu.position = {240,0}
+		ret.add_tileset_menu.width = 720
+		ret.add_tileset_menu.height = 720
+		local tb = gui.textbox.new()
+		tb.width = 240
+		tb.height = 32
+		tb.padding = 4
+		tb.bgcolor = {0,0,0}
+		tb.fontcolor = {144,244,244}
+		tb.text = "hi"
+		tb.on_click = function()
+			tb.stream_id = text_input.new_stream()
+
+		end
+		table.insert(ret.add_tileset_menu.children, tb) end return ret
 end
 
 --------------------------------------------------------------------------------
--- update/draw section
+-- update/draw/textinput section
 --------------------------------------------------------------------------------
-
-
 
 function mapeditor:update(dt)	
 	self:handle_input(dt)
@@ -140,9 +179,11 @@ function mapeditor:draw()
 		love.graphics.line(240,y,960,y)
 	end
 	-- draw_current_block()
+	-- draw toolbar
 	self.toolbar:draw()
-	if self.palette_menu_open > 0 then
-		self.palette_menu:draw()
+	-- draw main menu
+	if self.main_window then
+		self.main_window:draw()
 	end
 end
 
@@ -152,12 +193,14 @@ function mapeditor:handle_input(dt)
 	local mx, my = love.mouse.getPosition()
 	-- handle keyboard input
 	if self.palette_menu_open == 0 then
-		if love.keyboard.isDown("lshift","rshift") then
+		if love.keyboard.isDown("lshift","rshift") and not self.main_window then
 			self.palette_menu_open = 1
+			self.main_window = self.palette_menu
 		end
 	elseif self.palette_menu_open == 1 then
 		if not love.keyboard.isDown("lshift","rshift") then
 			self.palette_menu_open = 0
+			self.main_window = nil
 		end
 	end
 	
@@ -167,9 +210,9 @@ function mapeditor:handle_input(dt)
 			self.toolbar:on_click(mx,my)
 		end
 	elseif mx >= 240 then
-		if self.palette_menu_open > 0 then
+		if self.main_window then
 			if love.mouse.isDown("l") then
-				self.palette_menu:on_click(mx,my)
+				self.main_window:on_click(mx-240,my)
 			end
 		else
 			if love.keyboard.isDown(" ") then

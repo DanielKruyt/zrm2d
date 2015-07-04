@@ -133,24 +133,26 @@ local tabstack = {}
 		love.graphics.translate(self.position[1],self.position[2])
 		love.graphics.setColor(self.bgcolor)
 		love.graphics.rectangle("fill",0,0,self.width,self.height)
-		--draw tabstack itself
-		for k,v in pairs(self.tabs) do
-			if k == self.selection then
-				love.graphics.setColor(v[2].bgcolor)
-			else
-				love.graphics.setColor(self.tabcolor)
+		if self.selection > 0 then
+			--draw tabstack itself
+			for k,v in pairs(self.tabs) do
+				if k == self.selection then
+					love.graphics.setColor(v[2].bgcolor)
+				else
+					love.graphics.setColor(self.tabcolor)
+				end
+				love.graphics.rectangle("fill", self.tabwidth*(k-1), 0, self.tabwidth, self.tabheight)
+
+				love.graphics.setColor(self.fontcolor)
+				local tw = love.graphics.getFont():getWidth(self.tabs[k][1])
+				local lh = love.graphics.getFont():getHeight()
+				love.graphics.printf(self.tabs[k][1], self.tabwidth*(k-1)-tw/2+self.tabwidth/2, self.tabheight/2-lh/2, tw, "center")
 			end
-			love.graphics.rectangle("fill", self.tabwidth*(k-1), 0, self.tabwidth, self.tabheight)
 
-			love.graphics.setColor(self.fontcolor)
-			local tw = love.graphics.getFont():getWidth(self.tabs[k][1])
-			local lh = love.graphics.getFont():getHeight()
-			love.graphics.printf(self.tabs[k][1], self.tabwidth*(k-1)-tw/2+self.tabwidth/2, self.tabheight/2-lh/2, tw, "center")
+			--draw container
+			love.graphics.translate(self.padding,self.padding+self.tabheight)
+			self.tabs[self.selection][2]:draw()
 		end
-
-		--draw container
-		love.graphics.translate(self.padding,self.padding+self.tabheight)
-		self.tabs[self.selection][2]:draw()
 
 		love.graphics.pop()
 	end
@@ -318,7 +320,7 @@ local textbox = {}
 	end
 
 	function textbox.draw(self)
-		if self.cursor > 0 then -- if actually in this textbox
+		--if self.cursor > 0 then -- if actually in this textbox
 			love.graphics.push("all")
 
 			local tw = love.graphics.getFont():getWidth(self.text:sub(self.viewport[1],self.viewport[2]))
@@ -333,7 +335,7 @@ local textbox = {}
 				self.width, "center")
 
 			love.graphics.pop()
-		end
+		--end
 	end
 
 	function textbox.new()
