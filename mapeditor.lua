@@ -11,6 +11,7 @@ mapeditor = {
 	add_tileset_menu = gui.window.new(),
 	brushes = {},
 	main_window = nil, -- where palette menu, add tileset menu, etc will appear
+	focus = {on_unfocus=function() end}, -- which gui element we are focused on
 	
 	palette_menu_open = 0, -- 0 = closed, 1 = open by shift, 2 = open by menu
 	
@@ -207,7 +208,13 @@ function mapeditor:handle_input(dt)
 	--handle mouse input
 	if mx < 240 then
 		if love.mouse.isDown("l") then
-			self.toolbar:on_click(mx,my)
+			local nfocus = self.toolbar:on_click(mx,my)
+			if nfocus ~= self.focus then
+				print('aye')
+				self.focus:on_unfocus()
+				self.focus = nfocus
+				self.focus:on_focus()
+			end
 		end
 	elseif mx >= 240 then
 		if self.main_window then
@@ -235,4 +242,9 @@ function mapeditor:handle_input(dt)
 		end
 	end
 end
+
+
+
+
+
 

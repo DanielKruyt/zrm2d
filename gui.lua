@@ -1,4 +1,5 @@
 require "util"
+require "textinput"
 
 local container = {}
 	container.id = "container"
@@ -13,13 +14,14 @@ local container = {}
 
 	function container.on_click(self,x,y)
 		for k,v in pairs(self.children) do
+			print(self,k,v)
 			if (v.position[1]+self.padding) < x and x < (v.position[1]+self.padding+v.width) then
 				if (v.position[2]+self.padding) < y and y < (v.position[2]+self.padding+v.height) then
 					return self.children[k]:on_click(x-(self.padding+v.position[1]), y-(self.padding+v.position[2]))
 				end
 			end
 		end
-		return nil
+		return self
 	end
 	function container.draw(self)
 		love.graphics.push("all")
@@ -41,7 +43,11 @@ local container = {}
 	function container.new()
 		return util.deepcopy(gui.container)
 	end
-
+	
+	function container:on_focus()
+	end
+	function container:on_unfocus()
+	end
 
 
 
@@ -65,7 +71,7 @@ local window = {}
 				end
 			end
 		end
-		return nil
+		return self
 	end
 
 	function window.draw(self)
@@ -91,6 +97,10 @@ local window = {}
 		return util.deepcopy(gui.window)
 	end
 
+	function window:on_focus()
+	end
+	function window:on_unfocus()
+	end
 
 
 
@@ -117,7 +127,7 @@ local tabstack = {}
 		if y < self.tabheight then
 			local nsel = math.floor(x/self.tabwidth)+1
 			if nsel > #self.tabs then
-				return nil
+				return self
 			else
 				self.selection = nsel
 			end
@@ -161,6 +171,16 @@ local tabstack = {}
 		return util.deepcopy(gui.tabstack)
 	end
 
+	function tabstack:update(dt)
+		for k,v in pairs(self.tabs) do
+			self.tabs[k][2]:update(dt)
+		end
+	end
+	function tabstack:on_focus()
+	end
+	function tabstack:on_unfocus()
+	end
+
 
 
 
@@ -180,7 +200,7 @@ local button = {}
 		--button.contents.position = {0,0}
 		--button.contents.content = -1 -- replace with LOVE drawable, eg img/text
 	
-	button.on_click = function(self) end
+	button.on_click = function(self) return self end
 	button.on_hover = function(self,time) end
 
 	function button.draw(self)
@@ -197,6 +217,10 @@ local button = {}
 	end
 	function button.new()
 		return util.deepcopy(gui.button)
+	end
+	function button:on_focus()
+	end
+	function button:on_unfocus()
 	end
 
 
@@ -216,6 +240,7 @@ local checkbox = {}
 
 	function checkbox.on_click(self,x,y)
 		self.state = not self.state
+		return self
 	end
 
 	function checkbox.draw(self)
@@ -233,6 +258,10 @@ local checkbox = {}
 
 	function checkbox.new()
 		return util.deepcopy(gui.checkbox)
+	end
+	function checkbox:on_focus()
+	end
+	function checkbox:on_unfocus()
 	end
 
 
@@ -341,8 +370,18 @@ local textbox = {}
 	function textbox.new()
 		return util.deepcopy(gui.textbox)
 	end
-
-
+	
+	function textbox:on_focus()
+		self.stream_id = text_input.add_textbox(self)
+	end
+	
+	function textbox:on_unfocus()
+		text_input.delete(self.stream_id)
+	end
+	
+	function textbox:on_click()
+		return self
+	end
 
 
 
@@ -362,6 +401,10 @@ local list = {}
 	function list.new()
 		return util.deepcopy(gui.list)
 	end
+	function list:on_focus()
+	end
+	function list:on_unfocus()
+	end
 
 
 
@@ -380,6 +423,10 @@ local droplist = {}
 
 	function droplist.new()
 		return util.deepcopy(gui.droplist)
+	end
+	function droplist:on_focus()
+	end
+	function droplist:on_unfocus()
 	end
 
 
