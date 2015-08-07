@@ -14,9 +14,9 @@ local container = {}
 
 	function container.on_click(self,x,y)
 		for k,v in pairs(self.children) do
-			print(self,k,v)
 			if (v.position[1]+self.padding) < x and x < (v.position[1]+self.padding+v.width) then
 				if (v.position[2]+self.padding) < y and y < (v.position[2]+self.padding+v.height) then
+
 					return self.children[k]:on_click(x-(self.padding+v.position[1]), y-(self.padding+v.position[2]))
 				end
 			end
@@ -136,6 +136,8 @@ local tabstack = {}
 			local yy = y - (self.padding + self.tabs[self.selection][2].position[2] + self.tabheight) 
 			return self.tabs[self.selection][2]:on_click(xx, yy)
 		end
+
+		return self
 	end
 
 	function tabstack.draw(self)
@@ -200,7 +202,9 @@ local button = {}
 		--button.contents.position = {0,0}
 		--button.contents.content = -1 -- replace with LOVE drawable, eg img/text
 	
-	button.on_click = function(self) return self end
+	button.on_click = function(self)
+		return self
+	end
 	button.on_hover = function(self,time) end
 
 	function button.draw(self)
@@ -219,6 +223,7 @@ local button = {}
 		return util.deepcopy(gui.button)
 	end
 	function button:on_focus()
+		return self
 	end
 	function button:on_unfocus()
 	end
@@ -307,7 +312,6 @@ local textbox = {}
 			end
 			self.viewport[2] = self.viewport[2] -1
 		end
-		print(self.viewport[1], self.viewport[2])
 	end
 
 	function textbox.insert(self,txt)
@@ -380,6 +384,7 @@ local textbox = {}
 	end
 	
 	function textbox:on_click()
+		scratch('textbox hit')
 		return self
 	end
 

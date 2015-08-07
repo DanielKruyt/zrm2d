@@ -99,6 +99,7 @@ function mapeditor.new()
 					b_add_tileset.on_click = function()
 						--spawn main window with textbox input for now
 						ret.main_window = ret.add_tileset_menu
+						return b_add_tileset
 					end
 					local b_open_palette_menu = gui.button.new()
 					b_open_palette_menu.bgcolor = {69,69,69}
@@ -210,7 +211,6 @@ function mapeditor:handle_input(dt)
 		if love.mouse.isDown("l") then
 			local nfocus = self.toolbar:on_click(mx,my)
 			if nfocus ~= self.focus then
-				print('aye')
 				self.focus:on_unfocus()
 				self.focus = nfocus
 				self.focus:on_focus()
@@ -224,7 +224,6 @@ function mapeditor:handle_input(dt)
 		else
 			if love.keyboard.isDown(" ") then
 				if self.space_drag_start then
-					print('hit',self.cx, self.cy)
 					self.drag_start_x = mx
 					self.drag_start_y = my
 					self.space_drag_start = false

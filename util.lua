@@ -137,6 +137,10 @@ function math.magmin(a,b)
 	end
 end
 
+function scratch(...)
+	print(...)
+end
+
 --------------------------------------------------------------------------------
 -- Stringy library TODO: do this stringy library at some point
 --------------------------------------------------------------------------------
