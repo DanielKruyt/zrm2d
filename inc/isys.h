@@ -7,6 +7,8 @@ class InputSystem
 {
 public:
 	InputSystem( sf::Window *w );
+	bool IsKeyDown( sf::Keyboard::Key k );
+	bool IsMouseDown( sf::Mouse::Button b );
 private:
 	sf::Window *sfmlWindow;
 };

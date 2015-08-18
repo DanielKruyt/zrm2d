@@ -6,9 +6,16 @@
 
 struct DrawBucket
 {
-	sf::Drawable &drawable;
+	sf::Drawable *drawable;
 	sf::Transform transform;
 	float height;
+};
+
+
+
+struct DrawComposition
+{
+	std::vector<DrawBucket> buckets;
 };
 
 

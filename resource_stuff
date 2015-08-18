@@ -1,0 +1,26 @@
+Resource loader:
+	* Primitive:
+		finite-length byte stream ( filename, start/end pos )
+	* Abstract
+		* Level 1
+			* int ( of various bit width, 2^integer byte count )
+			* un-specified/-terminated utf-8
+		* Level 2
+			* length-specified byte string ( aka array )
+			* JSON
+		* Level 3
+			* Hash-checked, length-specified byte string
+			* n-D Array
+		* Level 4
+			* Paged Array
+			* Palette'd Array
+		* Level 5
+			* Paged, Palette'd Array
+
+--- Cut the crap ---------------------------------------------------------------
+
+YAML
+Texture file ( png, jpg, bmp, etc )
+Sound file ( wav, ogg, mp3, etc )
+YAML Composite
+Binary Composite
