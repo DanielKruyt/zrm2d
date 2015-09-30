@@ -1,0 +1,2 @@
+* All component types must be registered before you start making components
+  or the bitmask thingy will break everything

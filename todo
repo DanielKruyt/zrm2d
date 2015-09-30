@@ -1,14 +1,3 @@
 TODO:
-	* Menu system [ ]
-		* main menu [ ]
-		* in-game menu system [ ]
-	* Render System [ ]
-		* basic operation [x]
-		* composite objects [ ]
-		* occluders & lighting system [ ]
-	* Entity System [ ]
-		* header/basic structure [x]
-		* implement specifics for game [ ]
-	* Input System  [x]
-	* Event System  [ ]
-		* save/load file [ ]
+
+[ ] test ECS implementation
