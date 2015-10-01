@@ -66,4 +66,5 @@ int main( int argc, char** argv )
 	simple_component sc;
 
 	rev::component_type simple_type = engine.register_component( &sc );
+	rev::component_handle h = simple_type.create( 
 }

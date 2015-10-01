@@ -7,4 +7,4 @@ clang++ \
 	src/rev/component.cpp \
 	src/rev/system.cpp \
 	src/rev/engine.cpp \
-	src/main.cpp \
+	main2.cpp
