@@ -1,19 +1,15 @@
-#ifndef __SYSTEM_H__
-#define __SYSTEM_H__
+#ifndef __REV__SYSTEM_H__
+#define __REV__SYSTEM_H__
 
 namespace rev
 {
-	class engine;
-	typedef void (*system)( engine* e );
-
-	namespace sys
+	class system
 	{
-		static void render_2d( engine* e )
-		{
-		}
-		static void gui( engine* e )
-		{
-		}
+		class engine;
+		public:
+			virtual void init( rev::engine *e ) = 0;
+			virtual void tick() = 0;
+			virtual void clean_up() = 0;
 	};
 }
 
