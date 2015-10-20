@@ -8,12 +8,24 @@
 #include <SDL2/SDL_opengl.h>
 
 GLuint loadShadersIntoProgram( const char* frag_fn, const char* vert_fn );
+
 typedef int drawable;
+typedef GLuint texture;
+typedef int vertex_set;
 
 struct draw_bucket {
+	struct {
+		float x, y;
+	} pos;
+
+	struct {
+		float r, g ,b;
+	} color;
+
 	float h;
-	float x, y;
-	drawable d;
+	float rot;
+	texture tex;
+	vertex_set vert;
 };
 
 struct camera
@@ -29,7 +41,8 @@ class gfx_system
 	public:
 		gfx_system( const char* title, int w, int h );
 
-		drawable make_drawable( int num_vertices, float *vertices, float r, float g, float b );
+		vertex_set load_vertex_set( int num, float* v );
+		texture load_texture( const char* filename ); //BMP only
 		void submit_bucket( draw_bucket b );
 		void draw_frame();
 
@@ -40,15 +53,18 @@ class gfx_system
 		SDL_Window *window;
 		SDL_GLContext gl_cxt;
 
-		struct drawable_entry
+
+		struct vertex_set_entry
 		{
 			int start, count;
-			float r, g, b;
 		};
+		std::vector<vertex_set_entry> vertex_sets;
+
 		std::vector<float> vertices;
-		std::vector<drawable_entry> draw_entries;
+
 		GLuint vbo;
 		GLuint vao;
+		GLint shaderProgram;
 
 		std::vector<draw_bucket> draw_buckets;
 };
