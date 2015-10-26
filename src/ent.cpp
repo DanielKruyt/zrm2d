@@ -1,8 +1,8 @@
-#include "ent.h"
+#include "core/ent.h"
 
 #include <stdlib.h>
 
-entity_system::entity_system()
+EntitySystem::EntitySystem()
 {
 
 	ent.gen.reserve( INITIAL_ENTITY_RESERVATION );
@@ -13,26 +13,12 @@ entity_system::entity_system()
 	}
 
 	cmgr.reserve( INITIAL_CMGR_RESERVATION );
-
-	for( int i = 0; i < INITIAL_CMGR_RESERVATION; i++ )
-		destroy_hooks.cnt_occd[i] = destroy_hooks.cnt_ownd[i] = 0;
 }
 
 
-component entity_system::add_cmgr( component_manager* c )
+Entity EntitySystem::create()
 {
-	if( cmgr.size() >= cmgr.capacity() )
-	{
-		cmgr.reserve( cmgr.size() + CMGR_RESERVE_ON_END );
-	}
-	cmgr.push_back( c );
-
-	return cmgr.size()-1;
-}
-
-entity entity_system::create_entity()
-{
-	entity e;
+	Entity e;
 	if( ent.free.empty() )
 	{
 		//alloc more space
@@ -44,53 +30,37 @@ entity entity_system::create_entity()
 		}
 	}
 	e.id = ent.free.front();
+	ent.free.pop();
 	e.gen = ent.gen[e.id];
 
 	return e;
 }
 
-entity entity_system::create_entity( entity_template& t )
+void EntitySystem::notifyOnDestroy( Entity e, ComponentManager* c )
 {
-	entity e = create_entity();
-
-	for( int i = 0; i < t.num_components; i++ )
+	if( destroyHooks.find(e) == destroyHooks.end() )
 	{
-		add_component( e, t.components[i] );
+		destroyHooks[e] = std::vector<ComponentManager*>();
 	}
-
-	return e;
+	destroyHooks[e].push_back( c );
 }
 
-void entity_system::add_component( entity e, component c )
-{
-	cmgr[c]->add( e );
-}
-
-void entity_system::destroy_notify( entity e, component_manager* c )
-{
-	if( destroy_hooks.find(e) == destroy_hooks.end() )
-	{
-		destroy_hooks[e] = std::vector<component>();
-	}
-	destroy_hooks[e].push_back( c );
-}
-
-void entity_system::destroy( entity e )
+void EntitySystem::destroy( Entity e )
 {
 	ent.gen[e.id]++;
 	ent.free.push( e.id );
-	auto it = destroy_hooks.find( e );
-	if( it != destroy_hooks.end() )
+	auto it = destroyHooks.find( e );
+	if( it != destroyHooks.end() )
 	{
-		component_manager **c = it->data();
-		for( int i = 0; i < it->size(); i++ )
+		ComponentManager **c = it->second.data();
+		for( int i = 0; i < it->second.size(); i++ )
 		{
-			c[i]->entity_destroyed( e );
+			c[i]->entityDestroyed( e );
 		}
 	}
 }
 
-bool entity_system::alive( entity e )
+bool EntitySystem::alive( Entity e )
 {
 	return ent.gen[e.id] == e.gen;
 }
